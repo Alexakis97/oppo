@@ -1,5 +1,4 @@
-import 'package:oppo/speech/speech_playground.dart';
-
+import '../speech/speech_playground.dart';
 import '../blocs/blocspeech.dart';
 import '../model/task.dart';
 import '../blocs/speechprovider.dart';
@@ -46,7 +45,7 @@ class _Work extends State<Work> {
             onTap: (){
               Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => SpeechProvider(child:Speech())));},
+                  MaterialPageRoute(builder: (context) => SpeechProvider(child: Speech())));},
             child: RichText(
           text: TextSpan(
             children: [
@@ -68,7 +67,7 @@ class _Work extends State<Work> {
 
   }
 
-  Widget _taskWidget(index,SpeechBloc) {
+  Widget _taskWidget(index,BlocSpeech SpeechBloc) {
     return Card(
         child: Column(
       children: [
@@ -118,7 +117,11 @@ class _Work extends State<Work> {
                     TextButton(
                       child: const Text('Save'),
                       onPressed: () {
-
+                        SpeechBloc.cache.updateTask(Task(allTasks[index].id,task.text,timetask.text,allTasks[index].isExported));
+                        setState(() {
+                          allTasks[index].text=task.text;
+                          allTasks[index].time=timetask.text;
+                        });
                         Navigator.pop(context);
 
                       },

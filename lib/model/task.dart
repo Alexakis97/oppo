@@ -1,8 +1,8 @@
 class Task{
   final int id;
-  final String text;
-  final String time;
-  final bool isExported;
+   String text;
+   String time;
+   bool isExported;
 
   Task(this.id, this.text, this.time, this.isExported);
 
