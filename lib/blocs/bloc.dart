@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'validators.dart';
 import 'dart:async';
@@ -21,5 +20,5 @@ class Bloc with Validators{
   }
 
 }
-final bloc = Bloc();
+
 

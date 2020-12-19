@@ -1,10 +1,10 @@
 import 'dart:async';
-
 import 'package:oppo/functions/fetchcountry.dart';
-import 'package:oppo/model/country.dart';
 import 'package:oppo/model/countrycodes.dart';
+import '../model/task.dart';
 
 class Validators {
+  bool used = false;
   //receivers String sends String
   final validateEmail = StreamTransformer<String,String>.fromHandlers(
     handleData: (email,sink){
@@ -36,13 +36,17 @@ class Validators {
 
         if(country.length >= 4 || country.toLowerCase()=='usa' || country.toLowerCase()=='uk' )
         {
+          print('country: ${country.toLowerCase()}');
+          String x =CountryCodes.map[country.toLowerCase()];
 
-
-          String x =CountryCodes.map[country];
-          print('$x');
           if(x!=null) {
-            final future = FetchCountry.fetchCountry(country);
-            future.then((Country value) => sink.add(value)).catchError((err) {
+            Future<String> future = FetchCountry.fetchCountry(country);
+            future.then((value) {
+              print('$value');
+
+              sink.add(value);
+            }
+              ).catchError((err) {
               sink.addError("$country is not a country from future");
             });
           }
@@ -59,4 +63,6 @@ class Validators {
         }
       }
   );
+
+
 }

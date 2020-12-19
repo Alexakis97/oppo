@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:dynamic_theme/dynamic_theme.dart';
+import '../blocs/blocspeech.dart';
+import '../blocs/speechprovider.dart';
+
+
+
+
+
+
 
 
 class Settings extends StatelessWidget {
-
 
 
   @override
@@ -36,12 +43,12 @@ class DarkMode extends StatefulWidget{
 }
 
 class _DarkMode extends State<DarkMode> {
-
   static bool _value = false;
 
   @override
   Widget build(BuildContext context) {
-  if(DynamicTheme.of(context).brightness == Brightness.dark)
+
+    if(DynamicTheme.of(context).brightness == Brightness.dark)
     {
       _value = true;
     }else{
@@ -50,19 +57,70 @@ class _DarkMode extends State<DarkMode> {
     return
       Card(
         margin: EdgeInsets.all(30),
-        child:SwitchListTile(
-            activeTrackColor: Colors.white,
-            inactiveTrackColor: Colors.black87,
-            title: Text('Dark mode'),
-            secondary: Icon(Icons.dashboard_rounded),
-            value: _value, onChanged:
-            (value)  {
-          setState(()  {
-            _value = value;
-            _value ? DynamicTheme.of(context).setBrightness(Brightness.dark) : DynamicTheme.of(context).setBrightness(Brightness.light);
-          });
-        }
-        ) ,
+        child:Column(children: [
+          SwitchListTile(
+              activeTrackColor: Colors.white,
+              inactiveTrackColor: Colors.black87,
+              title: Text('Dark mode'),
+              secondary: Icon(Icons.dashboard_rounded),
+              value: _value, onChanged:
+              (value)  {
+            setState(()  {
+              _value = value;
+              _value ? DynamicTheme.of(context).setBrightness(Brightness.dark) : DynamicTheme.of(context).setBrightness(Brightness.light);
+            });
+          }
+          ) ,
+
+          ListTile(
+                  leading: Icon(Icons.mic),
+                  trailing: FlatButton(
+
+                      onPressed: () {
+
+                        showDialog(context: context, child:
+                        new AlertDialog(content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Row(
+                              children: [
+
+                                Icon(Icons.language,color: DynamicTheme.of(context).brightness == Brightness.dark ? Colors.white : Colors.blueAccent,size: 32,),
+                                SizedBox(width: 10,),
+                                Text('Select Language',style: TextStyle(fontSize: 20),)
+                              ],
+                            ),
+                            SizedBox(height: 20,),
+                            // DropdownButton(
+                            //   isExpanded: true,
+                            //   onChanged: (selectedVal) {
+                            //     //somehow call this function from the other widget
+                            //     Speech.switchLang(selectedVal);
+                            //   },
+                            //   value: speech.currentLocaleId,
+                            //   items: speech.localeNames
+                            //       .map(
+                            //         (localeName) => DropdownMenuItem(
+                            //       value: localeName.localeId,
+                            //       child: Text(localeName.name),
+                            //     ),
+                            //   )
+                            //       .toList(),
+                            // ),
+                          ],
+                        ),)
+                        );
+                      },
+                      child: Text('Change' ,)
+                  ),
+                  title: Text('Speech Detection',),
+                  subtitle: Text(
+                      'Change Language',style: TextStyle(fontSize: 14.0)
+                  ),
+
+                ),
+
+        ],)
       );
 
   }
@@ -90,5 +148,8 @@ class CustomInfo extends StatelessWidget{
         ),
       );
   }
+
+
+
 
 }

@@ -3,11 +3,13 @@ import 'bloc.dart';
 
 class Provider extends InheritedWidget{
 
-  final bloc = Bloc();
+  final Bloc bloc ;
   static Bloc of(BuildContext context){
     return (context.inheritFromWidgetOfExactType(Provider) as Provider).bloc;
   }
-  Provider({Key key,Widget child}) : super(key:key,child:child);
+  Provider({Key key, Widget child})
+      : bloc = Bloc(),
+        super(key: key,child: child);
   @override
   bool updateShouldNotify(covariant InheritedWidget oldWidget) {
     // TODO: implement updateShouldNotify

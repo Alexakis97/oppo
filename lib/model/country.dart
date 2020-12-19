@@ -22,4 +22,20 @@ class Country {
       this.newdeaths,
       this.totaldeaths,
       this.day});
+
+  Map<String,dynamic> toJson()=>{
+    'country':country ,
+    'continent':continent ,
+    'population':population,
+    'newcases':newcases ?? '0',
+    'activecases':activecases ?? '-',
+    'criticalcases':criticalcases ?? '-',
+    'recoveredcases':recoveredcases ?? '-',
+    'totalcases':totalcases ?? '-',
+    'newdeaths':newdeaths ?? '0',
+    'totaldeaths':totaldeaths,
+    'day':day
+  };
+
+
 }

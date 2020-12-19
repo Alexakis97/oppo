@@ -4,7 +4,7 @@ import '../model/country.dart';
 import 'package:http/http.dart' as http;
 
 class FetchCountry {
-  static Future<Country> fetchCountry(country) async {
+  static Future<String> fetchCountry(country) async {
     print('calling' +
         "https://covid-193.p.rapidapi.com/statistics?country=$country");
     var json = await http.get(
@@ -33,24 +33,13 @@ class FetchCountry {
       int totaldeaths = deaths['total'];
       String day = (response[0])['day'];
 
+
       print('fetch ok');
-      //
-      // return jsonEncode(Country(
-      //     continent: continent,
-      //     country: countryR,
-      //     population: population,
-      //     newcases: newcases,
-      //     activecases: activecases,
-      //     criticalcases: criticalcases,
-      //     recoveredcases: recoveredcases,
-      //     totalcases: totalcases,
-      //     newdeaths: newdeaths,
-      //     totaldeaths: totaldeaths,
-      //     day: day));
 
 
 
-      return Country(
+
+      return jsonEncode(Country(
           continent: continent,
           country: countryR,
           population: population,
@@ -61,8 +50,9 @@ class FetchCountry {
           totalcases: totalcases,
           newdeaths: newdeaths,
           totaldeaths: totaldeaths,
-          day: day);
+          day: day));
     } else {
+      print('error thrown');
       return Future.error("Not a country");
     }
   }
