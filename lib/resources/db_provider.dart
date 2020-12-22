@@ -51,11 +51,11 @@ class TaskDbProvider {
     return null;
   }
 
-  Stream<List<Task>> fetchTaskList() async*{
+  Future<List<Task>> fetchTaskList() async{
     await ready;
     List<Map<String,dynamic>> list = await db.query('Task');
 
-    yield List.generate(list.length, (i) {
+    return List.generate(list.length, (i) {
       return  Task.fromDb(list[i]);
     });
   }
