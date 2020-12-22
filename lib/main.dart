@@ -8,6 +8,7 @@ import 'blocs/provider.dart';
 import 'screens/Work.dart';
 import 'blocs/speechprovider.dart';
 
+
 void main() async {
 
   runApp(App());
@@ -108,7 +109,8 @@ class _TabsDemoState extends State<TabsDemo>
       Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => SpeechProvider(child:Speech())));},
-        backgroundColor: DynamicTheme.of(context1).brightness == Brightness.dark ? Colors.white : Colors.redAccent,
+        foregroundColor: DynamicTheme.of(context1).brightness == Brightness.dark ? Colors.white : Colors.grey,
+        backgroundColor: DynamicTheme.of(context1).brightness == Brightness.dark ? Colors.blueAccent : Colors.white,
         child: Icon(
           Icons.mic,
           size: 30.0,

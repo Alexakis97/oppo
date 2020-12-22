@@ -9,7 +9,7 @@ import 'package:speech_to_text/speech_to_text.dart';
 import '../blocs/speechprovider.dart';
 import 'package:dynamic_theme/dynamic_theme.dart';
 import '../model/task.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class Speech extends StatefulWidget {
@@ -28,12 +28,48 @@ class _Speech extends State<Speech> {
   String lastStatus = '';
   String currentLocaleId = '';
   int resultListened = 0;
-  List<LocaleName> localeNames = [];
+  String currentlang;
+   List<LocaleName> localeNames = [];
   final SpeechToText speech = SpeechToText();
 
   @override
   void initState() {
     super.initState();
+
+    final future = getSharedPrefs();
+    future.then((value) => {
+      if(value==null){
+        initSpeechState()
+      }else{
+        reloadSpeechState(value)
+        
+      }
+    });
+    
+   
+
+
+  }
+
+   Future<String> getSharedPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return  prefs.getString("lang");
+    
+  }
+
+  Future<void> reloadSpeechState(value) async {
+    var hasSpeech = await speech.initialize(
+        onError: errorListener, onStatus: statusListener, debugLogging: true);
+    if (hasSpeech) {
+      localeNames = await speech.locales();
+      currentLocaleId = value;
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      this.hasSpeech = hasSpeech;
+    });
   }
 
   Future<void> initSpeechState() async {
@@ -52,6 +88,8 @@ class _Speech extends State<Speech> {
       this.hasSpeech = hasSpeech;
     });
   }
+
+  
 
   void startListening() {
     lastWords = '';
@@ -119,10 +157,28 @@ class _Speech extends State<Speech> {
   }
 
   void switchLang(selectedVal) {
-    setState(() {
+    
       currentLocaleId = selectedVal;
-    });
+  
     print(selectedVal);
+  }
+
+  currectLanguage(countrycode)async{ 
+      localeNames.forEach((element) {
+        
+        if(element.localeId==countrycode){
+          
+      
+          setState(() {
+            currentlang = element.name;
+            
+          });
+         
+
+        }
+        
+        });
+        
   }
   
   @override
@@ -131,6 +187,7 @@ class _Speech extends State<Speech> {
     final speechbloc = SpeechProvider.of(context);
     final timetask = TextEditingController();
     final txt = TextEditingController();
+    currectLanguage(currentLocaleId);
     // TODO: implement build
     return Scaffold(
         appBar: AppBar(title: Text('title here')),
@@ -139,15 +196,15 @@ class _Speech extends State<Speech> {
           Container(
             child: Column(
               children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    FlatButton(
-                      child: Text('Initialize'),
-                      onPressed: hasSpeech ? null : initSpeechState,
-                    ),
-                  ],
-                ),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+                //   children: <Widget>[
+                //     FlatButton(
+                //       child: Text('Initialize'),
+                //       onPressed: hasSpeech ? null : initSpeechState,
+                //     ),
+                //   ],
+                // ),
               //  Row(
                //   mainAxisAlignment: MainAxisAlignment.spaceAround,
                //   children: <Widget>[
@@ -167,23 +224,23 @@ class _Speech extends State<Speech> {
                     // ),
                   //],
                // ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    DropdownButton(
-                      onChanged: (selectedVal) => switchLang(selectedVal),
-                      value: currentLocaleId,
-                      items: localeNames
-                          .map(
-                            (localeName) => DropdownMenuItem(
-                              value: localeName.localeId,
-                              child: Text(localeName.name),
-                            ),
-                          )
-                          .toList(),
-                    ),
-                  ],
-                )
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+                //   children: <Widget>[
+                //     DropdownButton(
+                //       onChanged: (selectedVal) => switchLang(selectedVal),
+                //       value: currentLocaleId,
+                //       items: localeNames
+                //           .map(
+                //             (localeName) => DropdownMenuItem(
+                //               value: localeName.localeId,
+                //               child: Text(localeName.name),
+                //             ),
+                //           )
+                //           .toList(),
+                //     ),
+                //   ],
+                // )
               ],
             ),
           ),
@@ -192,10 +249,14 @@ class _Speech extends State<Speech> {
             child: Column(
               children: <Widget>[
                 Center(
-                  child: Text(
-                    'Recognized Words',
-                    style: TextStyle(fontSize: 22.0),
-                  ),
+                  child: 
+
+                     Text(
+                    '$currentlang',
+                    style: TextStyle(fontSize: 22.0)
+                  
+                    
+                  )
                 ),
                 Expanded(
                   child: Stack(

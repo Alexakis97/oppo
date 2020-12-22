@@ -33,16 +33,20 @@ class _Work extends State<Work> {
       }
 
         if(snapshot.data.isEmpty){
-          return Center(child: GestureDetector(
+          return Center(
+            
+            child: GestureDetector(
               onTap: (){
                 Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => SpeechProvider(child: Speech())));},
               child: RichText(
+            
                 text: TextSpan(
+                style: DefaultTextStyle.of(context).style,
                   children: [
                     TextSpan(
-                      text: "Click ",
+                      text: "Tap me ",
                     ),
                     WidgetSpan(
                       child: Icon(Icons.mic, size: 18),

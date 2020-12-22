@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:dynamic_theme/dynamic_theme.dart';
-import '../blocs/blocspeech.dart';
-import '../blocs/speechprovider.dart';
-
-
-
-
-
-
+import 'package:speech_to_text/speech_to_text.dart';
+import '../speech/speech_playground.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class Settings extends StatelessWidget {
@@ -44,9 +39,32 @@ class DarkMode extends StatefulWidget{
 
 class _DarkMode extends State<DarkMode> {
   static bool _value = false;
-
+  final speech = Speech().createState();
+  
+    saveSharedPrefs(value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("lang", value);
+    }
+     Future<String> getSharedPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return  prefs.getString("lang");
+    
+  }
+  
   @override
   Widget build(BuildContext context) {
+
+
+    
+final future = getSharedPrefs();
+    future.then((value) => {
+      if(value==null){
+        speech.initSpeechState()
+      }else{
+        speech.reloadSpeechState(value)
+        
+      }
+    });
 
     if(DynamicTheme.of(context).brightness == Brightness.dark)
     {
@@ -91,22 +109,42 @@ class _DarkMode extends State<DarkMode> {
                               ],
                             ),
                             SizedBox(height: 20,),
-                            // DropdownButton(
-                            //   isExpanded: true,
-                            //   onChanged: (selectedVal) {
-                            //     //somehow call this function from the other widget
-                            //     Speech.switchLang(selectedVal);
-                            //   },
-                            //   value: speech.currentLocaleId,
-                            //   items: speech.localeNames
-                            //       .map(
-                            //         (localeName) => DropdownMenuItem(
-                            //       value: localeName.localeId,
-                            //       child: Text(localeName.name),
-                            //     ),
-                            //   )
-                            //       .toList(),
-                            // ),
+                            DropdownButton(
+                              isExpanded: true,
+                              onChanged: (selectedVal) {
+                                //somehow call this function from the other widget
+                                setState(() {
+                                  speech.switchLang(selectedVal);
+                                });
+                                
+
+                               print('changed!');
+                               saveSharedPrefs(selectedVal);
+
+                               Navigator.pop(context);
+                               final snackBar = SnackBar(
+                                  content: Text('Language successfully changed'),
+                                        action: SnackBarAction(
+                                          label: 'Undo',
+                                          onPressed: () {
+                                            
+                                          },
+                                        ),
+                                      );
+
+                               Scaffold.of(context).showSnackBar(snackBar);
+                              },
+                              value: speech.currentLocaleId,
+                              items: speech.localeNames
+                                  .map(
+                                    (localeName) => DropdownMenuItem(
+                                    
+                                  value: localeName.localeId,
+                                  child: Text(localeName.name),
+                                ),
+                              )
+                                  .toList(),
+                            ),
                           ],
                         ),)
                         );
