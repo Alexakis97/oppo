@@ -1,35 +1,61 @@
 import 'dart:convert';
-import 'package:flag/flag.dart';
+import 'package:dynamic_theme/dynamic_theme.dart';
+import 'package:oppo/functions/fetchcountry.dart';
+import 'package:oppo/screens/info_screen.dart';
+import 'package:oppo/screens/widgets/CountryBoxes.dart';
+import 'package:oppo/screens/widgets/my_header.dart';
 import '../blocs/provider.dart';
-import '../model/countrycodes.dart';
 import 'package:flutter/material.dart';
-import '../blocs/bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
-class PandemicLayout extends StatelessWidget {
+import '../constants.dart';
+
+class PandemicLayout extends StatefulWidget {
+  @override
+  _PandemicLayout createState() => _PandemicLayout();
+}
+
+class _PandemicLayout extends State<PandemicLayout> {
   final _controller = TextEditingController();
-
+  final controller = ScrollController();
+  double offset = 0;
+  void onScroll() {
+    setState(() {
+      offset = (controller.hasClients) ? controller.offset : 0;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     final bloc = Provider.of(context);
+    bool focused = false;
 
     return ListView(
       children: [
+        MyHeader(
+          image: "assets/icons/Drcorona.svg",
+          textTop: "All you need",
+          textBottom: "is stay at home.",
+          offset: offset,
+        ),
         Container(
             margin: EdgeInsets.only(left: 20, right: 20, top: 20),
             child: StreamBuilder(
                 stream: bloc.getCountryStream,
                 builder: (context, snapshot) {
+                  focused = false;
                   return TextFormField(
                     onChanged: bloc.addCountryStream,
                     controller: _controller,
                     decoration: InputDecoration(
                         errorText: snapshot.error,
-                        icon: Icon(Icons.flag_outlined),
+                        prefixIcon: Icon(Icons.flag_outlined),
                         hintText: 'Search Country',
                         labelText: 'Country',
-                        border: OutlineInputBorder(),
+                        border: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(20))),
                         suffixIcon: IconButton(
                           onPressed: () {
                             _controller.clear();
@@ -42,190 +68,181 @@ class PandemicLayout extends StatelessWidget {
         StreamBuilder(
           stream: bloc.getCountryStream,
           builder: (context, AsyncSnapshot<String> snapshot) {
+            print('${snapshot.connectionState}');
             if (snapshot.hasData) {
               final Map country = jsonDecode(snapshot.data);
 
+              if (!focused) {
+                FocusScope.of(context).unfocus();
+                focused = true;
+              }
               return Container(
-                margin: EdgeInsets.all(30),
                 child: Column(
                   children: [
                     Container(
-                      margin: EdgeInsets.only(top: 20),
-                      child: CountryLayout(
-                        country: country,
-                      ),
-                    ),
+                        margin: EdgeInsets.only(top: 20),
+                        child: CountryScreen(
+                          country: country,
+                        )),
                   ],
                 ),
               );
             } else {
-              return Text('');
+              return Center(child: Text('Statistics not found'));
             }
           },
         ),
-
-
+        SizedBox(
+          height: 30,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                "Symptoms",
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color:
+                        DynamicTheme.of(context).brightness == Brightness.dark
+                            ? Colors.white
+                            : kTitleTextColor),
+              ),
+              SizedBox(height: 20),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    SymptomCard(
+                      image: "assets/images/headache.png",
+                      title: "Headache",
+                      isActive: true,
+                    ),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    SymptomCard(
+                      image: "assets/images/caugh.png",
+                      title: "Caugh",
+                    ),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    SymptomCard(
+                      image: "assets/images/fever.png",
+                      title: "Fever",
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 20),
+              Text(
+                "Prevention",
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color:
+                        DynamicTheme.of(context).brightness == Brightness.dark
+                            ? Colors.white
+                            : kTitleTextColor),
+              ),
+              SizedBox(height: 20),
+              PreventCard(
+                text:
+                    "Since the start of the coronavirus outbreak some places have fully embraced wearing facemasks",
+                image: "assets/images/wear_mask.png",
+                title: "Wear face mask",
+              ),
+              PreventCard(
+                text:
+                    "Since the start of the coronavirus outbreak some places have fully embraced wearing facemasks",
+                image: "assets/images/wash_hands.png",
+                title: "Wash your hands",
+              ),
+              SizedBox(height: 50),
+            ],
+          ),
+        ),
+        Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: buildHelpCard(context)),
       ],
     );
   }
-}
 
-class CountryLayout extends StatelessWidget {
-  final Map country;
+  Row buildPreventation() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        PreventionCard(
+          svgSrc: "assets/icons/hand_wash.svg",
+          title: "Wash Hands",
+        ),
+        PreventionCard(
+          svgSrc: "assets/icons/use_mask.svg",
+          title: "Use Mask",
+        ),
+        PreventionCard(
+          svgSrc: "assets/icons/Clean_Disinfect.svg",
+          title: "Clean Disinfect",
+        ),
+      ],
+    );
+  }
 
-  CountryLayout({this.country});
-
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
+  Container buildHelpCard(BuildContext context) {
     return Container(
-
-      child: Column(
+      height: 150,
+      width: double.infinity,
+      child: Stack(
+        alignment: Alignment.bottomLeft,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                margin: EdgeInsets.only(top: 15),
-                child: Flag(
-                  CountryCodes
-                      .map["${(country['country'] as String).toLowerCase()}"],
-                  height: 30,
-                  width: 35,
-                ),
+          Container(
+            padding: EdgeInsets.only(
+                // left side padding is 40% of total width
+                left: MediaQuery.of(context).size.width * .4,
+                top: 20,
+                right: 20),
+            height: 130,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF60BE93), Color(0xFF1B8D59)],
               ),
-              SizedBox(
-                width: 15,
-              ),
-              Container(
-                  margin: EdgeInsets.only(top: 15),
-                  child: Text(
-                    '${country['country']}, ${country['continent']}',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ))
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                margin: EdgeInsets.only(top: 15),
-                child: Text(
-                  'Population:',
-                  style: TextStyle(fontSize: 18, ),
-                )
-              ),
-              SizedBox(
-                width: 15,
-              ),
-              Container(
-                  margin: EdgeInsets.only(top: 15),
-                  child: Text(
-                    '~${country['population']}',
-                    style: TextStyle(fontSize: 18, ),
-                  ))
-            ],
-          ),
-          SizedBox(height: 30,),
-          Text(
-            'Today: ${country['day']}',
-            style: TextStyle(fontStyle: FontStyle.normal, fontSize: 16,fontWeight: FontWeight.bold),
-          ),
-          Card(
-              child: Container(
-                  margin:EdgeInsets.only(top:30,bottom: 30),child: Row(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: RichText(
+              text: TextSpan(
                 children: [
-                  SizedBox(width: 40,),
-                  Column(children: [
-                    Text("New Cases", style: TextStyle(fontSize: 16)),
-                    SizedBox(height: 15,),
-                    Text("${country['newcases']}",style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.orange), )
-
-                  ],),
-                  SizedBox(width: 30,),
-                  Column(children: [
-                    Text("New Deaths",style: TextStyle(fontSize: 16)),
-                    SizedBox(height: 15,),
-                    Text("${country['newdeaths']}",style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red[800]), )
-
-                  ],)
-
+                  TextSpan(
+                    text: "Dial 999 for \nMedical Help!\n",
+                    style: Theme.of(context)
+                        .textTheme
+                        .title
+                        .copyWith(color: Colors.white),
+                  ),
+                  TextSpan(
+                    text: "If any symptoms appear",
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.7),
+                    ),
+                  )
                 ],
-              ))),
-          SizedBox(height: 30,),
-          Card(
-              child: Column(
-                children: [
-
-                  Container(
-
-                    child: Column(children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start, children: [
-                        Container(margin: EdgeInsets.only(left: 10, top: 10),
-                          child: Text('Total Cases:',style: TextStyle(fontSize: 16)),),
-                        Container(margin: EdgeInsets.only(left: 10, top: 10),
-                          child: Text('${country['totalcases']}',
-                              style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.orange), ),)
-                      ],),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start, children: [
-                        Container(margin: EdgeInsets.only(left: 10, top: 10),
-                          child: Text('Total Recovered:',style: TextStyle(fontSize: 16)),),
-                        Container(margin: EdgeInsets.only(left: 10, top: 10),
-                          child: Text('${country['recoveredcases']}',
-                            style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green[600]), ),)
-                      ],),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start, children: [
-                        Container(margin: EdgeInsets.only(left: 10, top: 10),
-                          child: Text('Total Active:',style: TextStyle(fontSize: 16)),),
-                        Container(margin: EdgeInsets.only(left: 10, top: 10),
-                          child: Text('${country['activecases']}',
-                            style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.orange), ),)
-                      ],),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start, children: [
-                        Container(margin: EdgeInsets.only(left: 10, top: 10),
-                          child: Text('Total Deaths:',style: TextStyle(fontSize: 16)),),
-                        Container(margin: EdgeInsets.only(left: 10, top: 10),
-                          child: Text('${country['totaldeaths']}',
-                            style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.red[800]), ),)
-                      ],),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start, children: [
-                        Container(margin: EdgeInsets.only(left: 10, top: 10),
-                          child: Text('In Critical Condition:',style: TextStyle(fontSize: 16)),),
-                        Container(margin: EdgeInsets.only(left: 10, top: 10),
-                          child: Text('${country['criticalcases']}',
-                            style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.red), ),)
-                      ],),
-
-                    ],),)
-                ],
-              )),
-
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            child: SvgPicture.asset("assets/icons/nurse.svg"),
+          ),
+          Positioned(
+            child: SvgPicture.asset("assets/icons/virus.svg"),
+            top: 30,
+            left: 10,
+          ),
         ],
       ),
     );

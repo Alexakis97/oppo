@@ -1,6 +1,5 @@
 import 'package:rxdart/rxdart.dart';
 import '../resources/db_provider.dart';
-import '../model/task.dart';
 import 'dart:async';
 class BlocSpeech {
 
