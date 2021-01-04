@@ -31,7 +31,7 @@ class _LineReportChart extends State<LineReportChart> {
                 ));
           }
           return AspectRatio(
-            aspectRatio: 2.2,
+            aspectRatio: 1.2,
             child: LineChart(
               LineChartData(
                   gridData: FlGridData(
